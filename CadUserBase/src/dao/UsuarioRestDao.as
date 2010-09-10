@@ -24,7 +24,7 @@ package dao
 	public class UsuarioRestDao extends EventDispatcher
 	{
 		
-		private const HOST:String = "http://localhost:3000/";
+		private const HOST:String = "http://cadusuario.heroku.com/";
 		
 		public function getUsuarios():void
 		{
