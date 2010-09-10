@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="buscaUsuarios()" xmlns:dao="dao.*" >
+	<fx:Script>
+		<![CDATA[
+			import events.AddUsuarioEvent;
+			import events.DeleteUsuarioEvent;
+			import events.UsuariosEvent;
+			
+			import model.Usuario;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			private var usuarioCollection:ArrayCollection = new ArrayCollection();
+			
+			private function onAddBtnClick(event:MouseEvent):void
+			{
+				var usuario:Usuario = new Usuario();
+				usuario.nome = txtNome.text;
+				usuario.sobrenome = txtSobrenome.text;
+				usuarioDao.addUsuario(usuario);
+			}
+			
+			private function usuarioAdicionado(event:AddUsuarioEvent):void
+			{
+				buscaUsuarios();
+				txtNome.text = "";
+				txtSobrenome.text = "";
+				
+			}
+			
+			private function deleteBtnClickHandler(event:MouseEvent):void
+			{
+				var usuario:Usuario = usuariosDG.selectedItem as Usuario;
+				
+				usuarioDao.deleteUsuario(usuario);
+			}
+			
+			private function atualizaGrid(evento:UsuariosEvent):void
+			{
+				this.usuarioCollection = evento.usuarios;
+			}
+			
+			private function buscaUsuarios():void
+			{
+				usuarioDao.getUsuarios();
+			}
+			
+			protected function deleteUsuarioEventHandler(event:DeleteUsuarioEvent):void
+			{
+				buscaUsuarios();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<dao:UsuarioRestDao id="usuarioDao" usuariosEvent="atualizaGrid(event)" addUsuarioEvent="usuarioAdicionado(event)" deleteUsuarioEvent="deleteUsuarioEventHandler(event)"/>
+	</fx:Declarations>
+	<s:BorderContainer width="100%" height="100%">
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+		<s:VGroup left="10" right="10" top="5" width="100%" height="50%">
+			<mx:DataGrid id="usuariosDG" dataProvider="{usuarioCollection}" width="100%" height="100%">
+				<mx:columns>
+					<mx:DataGridColumn dataField="id" headerText="Usuario ID"/>
+					<mx:DataGridColumn dataField="nome" headerText="Nome"/>
+					<mx:DataGridColumn dataField="sobrenome" headerText="Sobrenome"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<s:Button id="deleteBtn" left="10" label="Delete Usuario" click="deleteBtnClickHandler(event)" enabled="{usuariosDG.selectedIndex > -1}"/>
+			<s:Button id="refreshBtn" left="10" label="Atualizar" click="buscaUsuarios()"/>
+		</s:VGroup>
+		
+		<mx:Form top="110" left="180">
+			<mx:FormItem label="Nome:" >
+				<mx:TextInput id="txtNome"/>
+			</mx:FormItem>
+			<mx:FormItem label="Sobrenome:">
+				<mx:TextInput id="txtSobrenome"/>
+			</mx:FormItem>
+			<mx:FormItem>
+				<mx:Button id="addBtn" label="Adicionar Usuario" click="onAddBtnClick(event)"/>
+			</mx:FormItem>
+		</mx:Form>    
+	</s:BorderContainer>
+</s:Group>
